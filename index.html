@@ -93,14 +93,20 @@
 					for(j=i+1;j<num;j++){
 						drawLine(balls[i].x,balls[i].y,balls[j].x,balls[j].y)
 					}
-				requestAnimationFrame(frame)
+				time=setInterval(function(){
+					clear()
+					frame(ctx);
+				}, 20);
 			}
-			function clear(){//不知为何其它方法没有作用
-				c.height=c.height;
+			if(c.width != document.body.clientWidth || c.height != document.body.clientHeight){
+					resize()
+				}
+				c.height=document.body.clientHeight
+				c.width=document.body.clientWidth
 			}
 			init()//初始化
-			window.onresize = function(){
-				cancelAnimationFrame(time);
+			function resize(){
+				clearInterval(time)
 				init()
 			}
 		</script>
