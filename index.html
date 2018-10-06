@@ -1,0 +1,108 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>demo</title>
+		<style>
+			body{
+				margin:0px;
+			}
+		</style>
+  </head>
+  <body>
+		<canvas id="myCanvas" style="position:fixed;z-index:-1;">
+			Your browser does not support the HTML5 canvas tag.
+		</canvas>
+		<h1>Canvas</h1>
+		<script>
+			var c=document.getElementById("myCanvas")
+			var ctx=c.getContext("2d")
+			var width
+			var height
+			var time
+			var num=45        //默认PC端小球数
+			var maxr=16		 //默认最大小球半径
+			var smallnum=20 //手机屏幕时小球数
+			var smallr=8   //手机屏幕时最大小球半径
+			var ballColor='0,0,0,'
+			var lineColor='0,0,0,'
+			var balls=Array()
+			function Ball(x,y,r,dx,dy){
+				this.x=x
+				this.y=y
+				this.r=r
+				this.dx=dx
+				this.dy=dy
+			}
+			Ball.prototype.render = function(){
+				ctx.fillStyle='rgba('+ballColor+'0.2)'
+				ctx.beginPath()
+				ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI,true)
+				ctx.closePath()
+				ctx.fill();
+			}
+			Ball.prototype.move = function(){
+				this.x+=this.dx
+				this.y+=this.dy
+				if(this.x > width || this.x < 0)this.dx=-this.dx
+				if(this.y > height || this.y < 0)this.dy=-this.dy
+			}
+			function drawLine(x, y,endx,endy) {
+				var dX = Math.abs(x - endx)
+				var	dY = Math.abs(y - endy)
+				var lineLength = Math.sqrt(dX * dX + dY * dY)
+				var formula = 1 / lineLength * 5 - 0.009
+				var opacity = formula > 0.03 ? 0.03 : formula
+				if(width<400 || height<400){
+					opacity-=0.015
+				}
+				ctx.beginPath()
+				ctx.strokeStyle = 'rgba('+lineColor+opacity+')'
+				ctx.moveTo(x,y)
+				ctx.lineTo(endx,endy)
+				ctx.closePath()
+				ctx.stroke();
+			}
+			function init(){
+				balls.splice(0,balls.length)
+				width=document.body.clientWidth
+				height=document.body.clientHeight
+				c.setAttribute("width",width)
+				c.setAttribute("height",height)
+				ctx=c.getContext("2d")
+				//适配屏幕，处理横屏
+				if(width < 400 || height<400){
+					num=smallnum
+					maxr=smallr
+				}
+				for(i=0;i<num;i++){
+					var b=new Ball(parseInt(Math.random()*width),parseInt(Math.random()*height),parseInt(Math.random()*maxr),Math.random()-0.5,Math.random()-0.5)
+					balls.push(b)
+				}
+				time=requestAnimationFrame(frame)
+			}
+			function frame(){
+				clear()
+				//绘制小球
+				for(i=0;i<num;i++){
+					balls[i].move()
+					balls[i].render()
+				}
+				//绘制连线
+				for(i=0;i<num-1;i++)
+					for(j=i+1;j<num;j++){
+						drawLine(balls[i].x,balls[i].y,balls[j].x,balls[j].y)
+					}
+				requestAnimationFrame(frame)
+			}
+			function clear(){//不知为何其它方法没有作用
+				c.height=c.height;
+			}
+			init()//初始化
+			window.onresize = function(){
+				cancelAnimationFrame(time);
+				init()
+			}
+		</script>
+  </body>
+</html>
